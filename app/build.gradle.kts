@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.taufiqsejati.kotix"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.taufiqsejati.kotix"
@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.firebase.database)

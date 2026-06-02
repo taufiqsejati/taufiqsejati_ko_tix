@@ -24,7 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KoTix">
         <activity
-            android:name=".DetailActivity"
+            android:name=".checkout.PilihBangkuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.dashboard.DetailActivity"
             android:exported="false" />
         <activity
             android:name=".home.HomeActivity"

@@ -1,5 +1,6 @@
 package com.taufiqsejati.kotix.home.dashboard
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -94,9 +95,26 @@ class DashboardFragment : Fragment() {
                         binding.rvNowPlaying.adapter =
                             NowPlayingAdapter(dataList) {
                                 // Action onClick jika dibutuhkan
+                                var intent =
+                                    Intent(
+                                            context,
+                                            DetailActivity::class.java,
+                                        )
+                                        .putExtra("data", it)
+                                startActivity(intent)
                             }
 
-                        binding.rvComingSoon.adapter = ComingSoonAdapter(dataList) {}
+                        binding.rvComingSoon.adapter =
+                            ComingSoonAdapter(dataList) {
+                                // Action onClick jika dibutuhkan
+                                var intent =
+                                    Intent(
+                                            context,
+                                            DetailActivity::class.java,
+                                        )
+                                        .putExtra("data", it)
+                                startActivity(intent)
+                            }
                     }
                 }
 
