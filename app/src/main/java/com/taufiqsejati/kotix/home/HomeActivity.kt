@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.taufiqsejati.kotix.R
 import com.taufiqsejati.kotix.databinding.ActivityHomeBinding
 import com.taufiqsejati.kotix.home.dashboard.DashboardFragment
+import com.taufiqsejati.kotix.home.ticket.TicketFragment
 
 class HomeActivity : AppCompatActivity() {
 
