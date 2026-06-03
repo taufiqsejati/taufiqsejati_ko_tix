@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.taufiqsejati.kotix"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.taufiqsejati.kotix"

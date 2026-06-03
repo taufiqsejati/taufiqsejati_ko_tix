@@ -41,20 +41,20 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
 
     private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
-    // Tambahkan inisialisasi DatabaseReference
     private lateinit var databaseReference: DatabaseReference
     private lateinit var preferences: Preferences
     private var username: String? = ""
 
-    // --- CARA BARU: BERSIH & AMAN DARI DEPRECATED ---
+    // --- PERBAIKAN DI SINI: Menggunakan safe-call 'let' untuk mengunci nilai URI lokal ---
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success && filePath != null) {
+            val currentPath = filePath // Salin ke variabel lokal konstan
+            if (success && currentPath != null) {
                 statusAdd = true
 
-                // Tampilkan foto langsung menggunakan URI lokal temporer
+                // Tampilkan foto menggunakan variabel lokal yang sudah pasti non-null
                 Glide.with(this)
-                    .load(filePath)
+                    .load(currentPath)
                     .apply(RequestOptions.circleCropTransform())
                     .into(binding.ivProfile)
 
@@ -75,8 +75,6 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
         preferences = Preferences(this)
         storage = FirebaseStorage.getInstance()
         storageReference = storage.reference
-
-        // Inisialisasi Database ke node "User"
         databaseReference = FirebaseDatabase.getInstance().getReference("User")
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
@@ -85,27 +83,20 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
             insets
         }
 
-        // --- DAFTARKAN ON BACK PRESSED CALLBACK DI SINI ---
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // Tulis logika kamu di sini saat user menekan back
                     Toast.makeText(
                             this@SignUpPhotoscreenActivity,
                             "Tergesah? Klik tombol upload nanti aja",
                             Toast.LENGTH_LONG,
                         )
                         .show()
-
-                    // Jika kamu ingin menutup activity secara normal setelah Toast muncul,
-                    // hapus tanda komentar pada baris di bawah ini:
-                    // finish()
                 }
             },
         )
 
-        // Ambil nama dan username yang dikirim dari halaman pendaftaran sebelumnya
         val namaUser = intent.getStringExtra("nama")
         username = intent.getStringExtra("username")
 
@@ -133,23 +124,24 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
         }
 
         binding.btnSave.setOnClickListener {
-            if (filePath != null) {
+            // PERBAIKAN: Gunakan 'let' di sini untuk menghindari bug concurency & menghilangkan
+            // tanda !!
+            filePath?.let { safeUri ->
                 val progressDialog =
                     ProgressDialog(this).apply {
                         setTitle("Uploading...")
-                        setCancelable(false) // Mencegah user membatalkan di tengah jalan
+                        setCancelable(false)
                         show()
                     }
 
                 val ref = storageReference.child("images/" + UUID.randomUUID().toString())
-                ref.putFile(filePath!!)
+                ref.putFile(safeUri) // Aman tanpa tanda !!
                     .addOnSuccessListener {
                         progressDialog.dismiss()
                         Toast.makeText(this, "Uploaded", Toast.LENGTH_LONG).show()
 
                         ref.downloadUrl.addOnSuccessListener { uri ->
                             val imageUrl = uri.toString()
-
                             preferences.setValues("url", uri.toString())
 
                             if (!username.isNullOrEmpty()) {
@@ -166,7 +158,6 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
                                             )
                                             .show()
 
-                                        // Pindah Halaman setelah database sukses terupdate
                                         finishAffinity()
                                         val intent =
                                             Intent(
@@ -197,29 +188,29 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
                     }
                     .addOnFailureListener {
                         progressDialog.dismiss()
-                        Toast.makeText(this, "Failed to upload", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Failed to upload", Toast.LENGTH_SHORT).show()
                     }
                     .addOnProgressListener { taskSnapshot ->
                         val progress =
                             100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount
                         progressDialog.setMessage("Upload ${progress.toInt()} %")
                     }
-            } else {
-                Toast.makeText(this, "Silakan ambil foto terlebih dahulu", Toast.LENGTH_SHORT)
-                    .show()
             }
+                ?: run {
+                    Toast.makeText(this, "Silakan ambil foto terlebih dahulu", Toast.LENGTH_SHORT)
+                        .show()
+                }
         }
     }
 
     // --- DEXTER PERMISSION OVERRIDES ---
 
     override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-        // Panggil fungsi untuk menyiapkan URI file kosong sebelum kamera dibuka
         filePath = createImageUri()
+        val currentPath = filePath
 
-        if (filePath != null) {
-            // Jalankan kamera dengan membawa URI tempat menaruh hasilnya nanti
-            takePictureLauncher.launch(filePath)
+        if (currentPath != null) {
+            takePictureLauncher.launch(currentPath)
         } else {
             Toast.makeText(this, "Gagal menyiapkan penyimpanan internal", Toast.LENGTH_SHORT).show()
         }
@@ -238,9 +229,6 @@ class SignUpPhotoscreenActivity : AppCompatActivity(), PermissionListener {
         p1?.continuePermissionRequest()
     }
 
-    // --- FUNGSI HELPER BARU ---
-    // Mengonversi data Bitmap dari kamera menjadi File sementara agar mendapatkan Uri resmi yang
-    // bisa dibaca Firebase
     private fun createImageUri(): Uri? {
         return try {
             val imageFile = File(cacheDir, "avatar_${System.currentTimeMillis()}.jpg")

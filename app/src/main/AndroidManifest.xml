@@ -24,6 +24,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KoTix">
         <activity
+            android:name=".checkout.CheckoutSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".checkout.CheckoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".checkout.PilihBangkuActivity"
             android:exported="false" />
         <activity
