@@ -14,6 +14,7 @@
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -23,6 +24,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.KoTix">
+        <activity
+            android:name=".home.ticket.TicketActivity"
+            android:exported="false" />
         <activity
             android:name=".checkout.CheckoutSuccessActivity"
             android:exported="false" />
