@@ -39,5 +39,7 @@ class CheckoutSuccessActivity : AppCompatActivity() {
                 )
             startActivity(intent)
         }
+
+        binding.btnTiket.setOnClickListener {}
     }
 }

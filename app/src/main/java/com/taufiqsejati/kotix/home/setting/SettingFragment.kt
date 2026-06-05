@@ -1,5 +1,6 @@
 package com.taufiqsejati.kotix.home.setting
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.taufiqsejati.kotix.databinding.FragmentSettingBinding
+import com.taufiqsejati.kotix.sign.signin.SignInActivity
 import com.taufiqsejati.kotix.utils.Preferences
 
 class SettingFragment : Fragment() {
@@ -52,6 +54,17 @@ class SettingFragment : Fragment() {
 
         binding.tvMyWallet.setOnClickListener {
             //            startActivity(Intent(activity, MyWalletActivity::class.java))
+        }
+        binding.tvLogout.setOnClickListener {
+            // 1. Hapus data di SharedPreferences
+            preferences.clearData()
+
+            // 2. Arahkan kembali ke LoginActivity dan hapus activity sebelumnya dari stack
+            val intent = Intent(activity, SignInActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+
+            // Pastikan menutup fragment jika perlu
         }
     }
 
